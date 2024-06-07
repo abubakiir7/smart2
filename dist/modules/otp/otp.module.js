@@ -20,6 +20,7 @@ exports.OtpModule = OtpModule = __decorate([
         imports: [sequelize_1.SequelizeModule.forFeature([otp_entity_1.Otp])],
         controllers: [otp_controller_1.OtpController],
         providers: [otp_service_1.OtpService],
+        exports: [otp_service_1.OtpService],
     })
 ], OtpModule);
 //# sourceMappingURL=otp.module.js.map

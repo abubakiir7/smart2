@@ -19,8 +19,8 @@ let OtpController = class OtpController {
     constructor(otpService) {
         this.otpService = otpService;
     }
-    create(phone) {
-        return this.otpService.generateOtp(phone);
+    create(body) {
+        return this.otpService.generateOtp(body?.phone);
     }
     verifyOtp(body) {
         return this.otpService.verifyOtp(+body.otp, body.uuid);
@@ -28,14 +28,14 @@ let OtpController = class OtpController {
 };
 exports.OtpController = OtpController;
 __decorate([
-    (0, common_1.Get)(':phone'),
-    __param(0, (0, common_1.Param)('phone')),
+    (0, common_1.Post)('send-otp'),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], OtpController.prototype, "create", null);
 __decorate([
-    (0, common_1.Post)(),
+    (0, common_1.Post)("check-otp"),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

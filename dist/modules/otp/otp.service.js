@@ -26,19 +26,29 @@ let OtpService = class OtpService {
     async generateOtp(phone) {
         const otp = (0, otp_generator_1.generateOTP)(4);
         const expiration_time = (0, add_minutes_1.addMinutesToDate)(new Date(), 1);
-        this.otpRepo.destroy({ where: { phone } });
-        this.otpRepo.create({ otp, expiration_time, phone });
-        const saved_data = await this.otpRepo.create({ otp, expiration_time });
-        return saved_data.id;
+        await this.otpRepo.destroy({ where: { phone } });
+        const saved_data = await this.otpRepo.create({
+            otp: 5656,
+            expiration_time,
+            phone,
+        });
+        return {
+            status: "success",
+            message: "otp sent successfully",
+            payload: { uuid: saved_data.uuid },
+        };
     }
     async verifyOtp(otp, uuid) {
-        const saved_otp = await this.otpRepo.findOne({ where: { id: uuid } });
+        (0, console_1.log)(uuid, otp);
+        const saved_otp = await this.otpRepo.findOne({ where: { uuid: uuid } });
+        if (!saved_otp)
+            return { status: "failed", message: "uuid is incorrect" };
         (0, console_1.log)(saved_otp.expiration_time, new Date());
         if (saved_otp.expiration_time < new Date())
-            return { message: 'otp expired' };
+            return { status: "failed", message: "otp expired" };
         if (saved_otp.otp !== otp)
-            return { message: 'otp is not correct' };
-        return { message: 'success' };
+            return { status: "failed", message: "otp is not correct" };
+        return { status: "success" };
     }
 };
 exports.OtpService = OtpService;

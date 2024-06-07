@@ -1,9 +1,11 @@
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
+import { OtpService } from "../otp/otp.service";
 export declare class UserService {
     private usersRepo;
-    constructor(usersRepo: typeof User);
+    private otpService;
+    constructor(usersRepo: typeof User, otpService: OtpService);
     create(createUserDto: CreateUserDto): Promise<User>;
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;

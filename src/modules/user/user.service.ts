@@ -1,14 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectModel } from '@nestjs/sequelize';
-import { User } from './entities/user.entity';
-import { generateOTP } from '../../helpers/otp-generator';
-import { log } from 'console';
+import { Injectable } from "@nestjs/common";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { InjectModel } from "@nestjs/sequelize";
+import { User } from "./entities/user.entity";
+import { generateOTP } from "../../helpers/otp-generator";
+import { log } from "console";
+import { Otp } from "../otp/entities/otp.entity";
+import { OtpService } from "../otp/otp.service";
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User) private usersRepo: typeof User) {}
+  constructor(
+    @InjectModel(User) private usersRepo: typeof User,
+    private otpService: OtpService
+  ) {}
 
   create(createUserDto: CreateUserDto) {
     return this.usersRepo.create(createUserDto);
@@ -23,14 +28,15 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const updated_data = this.usersRepo.update(updateUserDto, { where: { id: id } });
+    const updated_data = this.usersRepo.update(updateUserDto, {
+      where: { id: id },
+    });
     return {
       status: "success",
       messgae: "the user updated successfully",
-      updated_data
-    }
+      updated_data,
+    };
   }
- 
 
   remove(id: number) {
     return `This action removes a #${id} user`;
@@ -41,6 +47,6 @@ export class UserService {
   }
 
   async email_is_exists(id: number) {
-    return (await this.usersRepo.findByPk(id))?.email != null
+    return (await this.usersRepo.findByPk(id))?.email != null;
   }
 }

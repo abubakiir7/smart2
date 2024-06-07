@@ -16,9 +16,11 @@ exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const user_entity_1 = require("./entities/user.entity");
+const otp_service_1 = require("../otp/otp.service");
 let UserService = class UserService {
-    constructor(usersRepo) {
+    constructor(usersRepo, otpService) {
         this.usersRepo = usersRepo;
+        this.otpService = otpService;
     }
     create(createUserDto) {
         return this.usersRepo.create(createUserDto);
@@ -30,11 +32,13 @@ let UserService = class UserService {
         return this.usersRepo.findByPk(id);
     }
     async update(id, updateUserDto) {
-        const updated_data = this.usersRepo.update(updateUserDto, { where: { id: id } });
+        const updated_data = this.usersRepo.update(updateUserDto, {
+            where: { id: id },
+        });
         return {
             status: "success",
             messgae: "the user updated successfully",
-            updated_data
+            updated_data,
         };
     }
     remove(id) {
@@ -51,6 +55,6 @@ exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, sequelize_1.InjectModel)(user_entity_1.User)),
-    __metadata("design:paramtypes", [Object])
+    __metadata("design:paramtypes", [Object, otp_service_1.OtpService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map
