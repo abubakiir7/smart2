@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
+const swagger_1 = require("@nestjs/swagger");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -36,13 +37,23 @@ let UserController = class UserController {
     remove(id) {
         return this.userService.remove(+id);
     }
-    phone_is_exists(id) {
-        return this.userService.phone_is_exists(id.id);
+    phone_is_exists(body) {
+        return this.userService.phone_is_exists(body.id);
     }
 };
 exports.UserController = UserController;
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: "Create a new user" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                firstName: { type: "string", example: "Sharifiddin aka bulin endi" },
+                phone: { type: "string", example: "+1234567890" },
+            },
+        },
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
@@ -50,41 +61,56 @@ __decorate([
 ], UserController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: "Get all users" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "Get a user by ID" }),
+    __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Post)('update/:id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Patch)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "Update a user by ID" }),
+    (0, swagger_1.ApiBody)({ type: update_user_dto_1.UpdateUserDto }),
+    __param(0, (0, common_1.Param)("id")),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_user_dto_1.UpdateUserDto]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "update", null);
 __decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Delete)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "Delete a user by ID" }),
+    __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)("phone_is_exists"),
+    (0, swagger_1.ApiOperation)({ summary: "Check if a phone number exists" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                id: { type: "number", example: 1 },
+            },
+        },
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "phone_is_exists", null);
 exports.UserController = UserController = __decorate([
-    (0, common_1.Controller)('user'),
+    (0, swagger_1.ApiTags)("user"),
+    (0, common_1.Controller)("user"),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);
 //# sourceMappingURL=user.controller.js.map

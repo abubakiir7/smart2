@@ -1,40 +1,73 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { log } from 'console';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from "@nestjs/common";
+import { UserService } from "./user.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { ApiTags, ApiOperation, ApiBody } from "@nestjs/swagger";
 
-@Controller('user')
+@ApiTags("user")
+@Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @ApiOperation({ summary: "Create a new user" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        firstName: { type: "string", example: "Sharifiddin aka bulin endi" },
+        phone: { type: "string", example: "+1234567890" },
+      },
+    },
+  })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
+  @ApiOperation({ summary: "Get all users" })
   findAll() {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  @ApiOperation({ summary: "Get a user by ID" })
+  findOne(@Param("id") id: string) {
     return this.userService.findOne(+id);
   }
 
-  @Post('update/:id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @Patch(":id")
+  @ApiOperation({ summary: "Update a user by ID" })
+  @ApiBody({ type: UpdateUserDto })
+  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  @ApiOperation({ summary: "Delete a user by ID" })
+  remove(@Param("id") id: string) {
     return this.userService.remove(+id);
   }
 
   @Post("phone_is_exists")
-  phone_is_exists(@Body() id: {id: number}) {
-    return this.userService.phone_is_exists(id.id)
+  @ApiOperation({ summary: "Check if a phone number exists" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        id: { type: "number", example: 1 },
+      },
+    },
+  })
+  phone_is_exists(@Body() body: { id: number }) {
+    return this.userService.phone_is_exists(body.id);
   }
 }

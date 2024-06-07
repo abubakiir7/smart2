@@ -1,11 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/sequelize";
 import { User } from "./entities/user.entity";
-import { generateOTP } from "../../helpers/otp-generator";
-import { log } from "console";
-import { Otp } from "../otp/entities/otp.entity";
 import { OtpService } from "../otp/otp.service";
 
 @Injectable()
@@ -15,38 +16,82 @@ export class UserService {
     private otpService: OtpService
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.usersRepo.create(createUserDto);
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const user = await this.usersRepo.create(createUserDto);
+      return {
+        status: "success",
+        message: "User created successfully",
+        user,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException("Error creating user");
+    }
   }
 
-  findAll() {
-    return this.usersRepo.findAll({});
+  async findAll() {
+    try {
+      const users = await this.usersRepo.findAll();
+      return {
+        status: "success",
+        users,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException("Error fetching users");
+    }
   }
 
-  findOne(id: number) {
-    return this.usersRepo.findByPk(id);
-  }
-
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const updated_data = this.usersRepo.update(updateUserDto, {
-      where: { id: id },
-    });
+  async findOne(id: number) {
+    const user = await this.usersRepo.findByPk(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
     return {
       status: "success",
-      messgae: "the user updated successfully",
-      updated_data,
+      user,
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const [updated] = await this.usersRepo.update(updateUserDto, {
+      where: { id },
+    });
+
+    if (updated) {
+      const updatedUser = await this.usersRepo.findByPk(id);
+      return {
+        status: "success",
+        message: "User updated successfully",
+        updatedUser,
+      };
+    }
+
+    throw new NotFoundException(`User with ID ${id} not found`);
+  }
+
+  async remove(id: number) {
+    const user = await this.usersRepo.findByPk(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    await this.usersRepo.destroy({ where: { id } });
+    return {
+      status: "success",
+      message: "User deleted successfully",
+    };
   }
 
   async phone_is_exists(id: number) {
-    return (await this.usersRepo.findByPk(id))?.phone != null;
+    const user = await this.usersRepo.findByPk(id);
+    return {
+      exists: user?.phone != null,
+    };
   }
 
   async email_is_exists(id: number) {
-    return (await this.usersRepo.findByPk(id))?.email != null;
+    const user = await this.usersRepo.findByPk(id);
+    return {
+      exists: user?.email != null,
+    };
   }
 }

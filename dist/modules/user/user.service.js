@@ -22,33 +22,77 @@ let UserService = class UserService {
         this.usersRepo = usersRepo;
         this.otpService = otpService;
     }
-    create(createUserDto) {
-        return this.usersRepo.create(createUserDto);
+    async create(createUserDto) {
+        try {
+            const user = await this.usersRepo.create(createUserDto);
+            return {
+                status: "success",
+                message: "User created successfully",
+                user,
+            };
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException("Error creating user");
+        }
     }
-    findAll() {
-        return this.usersRepo.findAll({});
+    async findAll() {
+        try {
+            const users = await this.usersRepo.findAll();
+            return {
+                status: "success",
+                users,
+            };
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException("Error fetching users");
+        }
     }
-    findOne(id) {
-        return this.usersRepo.findByPk(id);
-    }
-    async update(id, updateUserDto) {
-        const updated_data = this.usersRepo.update(updateUserDto, {
-            where: { id: id },
-        });
+    async findOne(id) {
+        const user = await this.usersRepo.findByPk(id);
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
         return {
             status: "success",
-            messgae: "the user updated successfully",
-            updated_data,
+            user,
         };
     }
-    remove(id) {
-        return `This action removes a #${id} user`;
+    async update(id, updateUserDto) {
+        const [updated] = await this.usersRepo.update(updateUserDto, {
+            where: { id },
+        });
+        if (updated) {
+            const updatedUser = await this.usersRepo.findByPk(id);
+            return {
+                status: "success",
+                message: "User updated successfully",
+                updatedUser,
+            };
+        }
+        throw new common_1.NotFoundException(`User with ID ${id} not found`);
+    }
+    async remove(id) {
+        const user = await this.usersRepo.findByPk(id);
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
+        await this.usersRepo.destroy({ where: { id } });
+        return {
+            status: "success",
+            message: "User deleted successfully",
+        };
     }
     async phone_is_exists(id) {
-        return (await this.usersRepo.findByPk(id))?.phone != null;
+        const user = await this.usersRepo.findByPk(id);
+        return {
+            exists: user?.phone != null,
+        };
     }
     async email_is_exists(id) {
-        return (await this.usersRepo.findByPk(id))?.email != null;
+        const user = await this.usersRepo.findByPk(id);
+        return {
+            exists: user?.email != null,
+        };
     }
 };
 exports.UserService = UserService;

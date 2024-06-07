@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OtpController = void 0;
 const common_1 = require("@nestjs/common");
 const otp_service_1 = require("./otp.service");
+const swagger_1 = require("@nestjs/swagger");
 let OtpController = class OtpController {
     constructor(otpService) {
         this.otpService = otpService;
@@ -28,7 +29,16 @@ let OtpController = class OtpController {
 };
 exports.OtpController = OtpController;
 __decorate([
-    (0, common_1.Post)('send-otp'),
+    (0, common_1.Post)("send-otp"),
+    (0, swagger_1.ApiOperation)({ summary: "Send OTP to the specified phone number" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                phone: { type: "string", example: "+1234567890" },
+            },
+        },
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -36,13 +46,28 @@ __decorate([
 ], OtpController.prototype, "create", null);
 __decorate([
     (0, common_1.Post)("check-otp"),
+    (0, swagger_1.ApiOperation)({ summary: "Verify the provided OTP using the UUID" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                otp: { type: "string", example: "123456" },
+                uuid: {
+                    type: "string",
+                    format: "uuid",
+                    example: "123e4567-e89b-12d3-a456-426614174000",
+                },
+            },
+        },
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], OtpController.prototype, "verifyOtp", null);
 exports.OtpController = OtpController = __decorate([
-    (0, common_1.Controller)('otp'),
+    (0, swagger_1.ApiTags)("otp"),
+    (0, common_1.Controller)("otp"),
     __metadata("design:paramtypes", [otp_service_1.OtpService])
 ], OtpController);
 //# sourceMappingURL=otp.controller.js.map
