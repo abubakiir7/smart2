@@ -1,8 +1,8 @@
-import { CreateTripDto } from './dto/create-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
-import { Trip } from './entities/trip.entity';
-import { FindTripDto } from './dto/find-trip.dto';
-import { Journey } from '../journey/entities/journey.entity';
+import { CreateTripDto } from "./dto/create-trip.dto";
+import { UpdateTripDto } from "./dto/update-trip.dto";
+import { Trip } from "./entities/trip.entity";
+import { FindTripDto } from "./dto/find-trip.dto";
+import { Journey } from "../journey/entities/journey.entity";
 export declare class TripService {
     private tripRepo;
     constructor(tripRepo: typeof Trip);
@@ -58,6 +58,7 @@ export declare class TripService {
             tripIds: any;
             transfers?: any;
             boardings: number[];
+            freeSeats: number;
         }[];
     } | {
         status: string;

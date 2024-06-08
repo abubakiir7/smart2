@@ -1,13 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateTripDto } from './dto/create-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
-import { InjectModel } from '@nestjs/sequelize';
-import { Trip } from './entities/trip.entity';
-import { DATE, Op } from 'sequelize';
-import { FindTripDto } from './dto/find-trip.dto';
-import { log } from 'console';
-import { Transport } from '../transport/entities/transport.entity';
-import { Journey } from '../journey/entities/journey.entity';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { CreateTripDto } from "./dto/create-trip.dto";
+import { UpdateTripDto } from "./dto/update-trip.dto";
+import { InjectModel } from "@nestjs/sequelize";
+import { Trip } from "./entities/trip.entity";
+import { DATE, Op } from "sequelize";
+import { FindTripDto } from "./dto/find-trip.dto";
+import { log } from "console";
+import { Transport } from "../transport/entities/transport.entity";
+import { Journey } from "../journey/entities/journey.entity";
 
 @Injectable()
 export class TripService {
@@ -16,8 +16,8 @@ export class TripService {
   async create(createTripDto: CreateTripDto) {
     // creating trip
     return {
-      status: 'success',
-      message: 'created successfully',
+      status: "success",
+      message: "created successfully",
       trip: await this.tripRepo.create(createTripDto),
     };
   }
@@ -31,18 +31,18 @@ export class TripService {
       include: [{ model: Journey }],
     });
 
-    const journeys: Journey[] = trips.map(trip => trip.journey)
-    log(journeys)
+    const journeys: Journey[] = trips.map((trip) => trip.journey);
+    log(journeys);
 
     if (trips.length)
       return {
-        status: 'success',
-        message: 'all not begin trips',
+        status: "success",
+        message: "all not begin trips",
         journeys,
       };
     return {
-      status: 'failed',
-      message: 'there is no trips in row',
+      status: "failed",
+      message: "there is no trips in row",
     };
   }
 
@@ -59,13 +59,13 @@ export class TripService {
     });
     if (trips.length)
       return {
-        status: 'success',
-        message: 'all active trips',
-        trips: await trips['journey'],
+        status: "success",
+        message: "all active trips",
+        trips: await trips["journey"],
       };
     return {
-      status: 'failed',
-      message: 'there is no active trips',
+      status: "failed",
+      message: "there is no active trips",
     };
   }
 
@@ -74,28 +74,28 @@ export class TripService {
     const trips = this.tripRepo.findAll({});
     if ((await trips).length)
       return {
-        status: 'success',
-        message: 'all trips',
+        status: "success",
+        message: "all trips",
         trips,
       };
     return {
-      status: 'failed',
-      message: 'there is no trips',
+      status: "failed",
+      message: "there is no trips",
     };
   }
 
   async findOne(id: number) {
     // getting one trip by id
     const trip = await this.tripRepo.findByPk(+id);
-    if (!trip) throw new BadRequestException('the id is not valid');
+    if (!trip) throw new BadRequestException("the id is not valid");
     return trip;
   }
 
   async update(id: number, updateTripDto: UpdateTripDto) {
     // update the trip
     return {
-      status: 'success',
-      message: 'updated successfully',
+      status: "success",
+      message: "updated successfully",
       trip: await this.tripRepo.update(updateTripDto, {
         where: { id },
         returning: true,
@@ -113,8 +113,8 @@ export class TripService {
     // deleting the route
     await this.tripRepo.destroy({ where: { id } });
     return {
-      status: 'success',
-      message: 'deleted successfully',
+      status: "success",
+      message: "deleted successfully",
       deleted_trip,
     };
   }
@@ -170,7 +170,7 @@ export class TripService {
         // Return the formatted trips
         return formattedTrips;
       } catch (error) {
-        console.error('Error fetching trips:', error);
+        console.error("Error fetching trips:", error);
         throw error;
       }
     }
@@ -187,7 +187,7 @@ export class TripService {
       const { trips, startPoint, endPoint, startDate, passangers } = journey;
 
       if (!trips || trips.length === 0) {
-        console.error('No trips provided.');
+        console.error("No trips provided.");
         return [];
       }
 
@@ -197,6 +197,7 @@ export class TripService {
         tripIds: any;
         transfers?: any;
         boardings: number[];
+        freeSeats: number
       }[] = [];
 
       async function dfs(
@@ -212,6 +213,7 @@ export class TripService {
         lastTripArrival: string | null,
         totalWaitTimes: { time: string; isTransfer: boolean }[],
         boardings: number[],
+        freeSeats: number
       ) {
         if (currentPoint === endPoint) {
           allRoutes.push({
@@ -220,6 +222,7 @@ export class TripService {
             tripIds: currentTripIds.slice(),
             transfers: totalWaitTimes.slice(),
             boardings: boardings.slice(),
+            freeSeats: freeSeats
           });
           return;
         }
@@ -229,7 +232,7 @@ export class TripService {
         for (const trip of trips) {
           if (trip.origin === currentPoint) {
             const departureTimeStamp = convertToTimestamp(
-              trip.departureDateTime,
+              trip.departureDateTime
             );
             if (
               departureTimeStamp >= currentTimeStamp &&
@@ -247,7 +250,7 @@ export class TripService {
               ];
               const newBoardings = [...boardings, trip.boarding];
 
-              let waitTime = '';
+              let waitTime = "";
               if (lastTripArrival !== null) {
                 const lastTripArrivalStamp =
                   convertToTimestamp(lastTripArrival);
@@ -255,10 +258,10 @@ export class TripService {
                   departureTimeStamp - lastTripArrivalStamp;
                 const days = Math.floor(waitTimeMillis / (1000 * 60 * 60 * 24));
                 const hours = Math.floor(
-                  (waitTimeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+                  (waitTimeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
                 );
                 const minutes = Math.floor(
-                  (waitTimeMillis % (1000 * 60 * 60)) / (1000 * 60),
+                  (waitTimeMillis % (1000 * 60 * 60)) / (1000 * 60)
                 );
                 waitTime = `${days}d ${hours}h ${minutes}m`;
 
@@ -267,6 +270,8 @@ export class TripService {
                   (await Trip.findByPk(trip.id)).journey_id;
 
                 totalWaitTimes.push({ time: waitTime, isTransfer });
+                freeSeats = trip.seats - trip.passangers
+                log(freeSeats)
               }
 
               await dfs(
@@ -278,6 +283,7 @@ export class TripService {
                 trip.arrivalDateTime,
                 [...totalWaitTimes],
                 newBoardings,
+                freeSeats
               );
             }
           }
@@ -285,7 +291,7 @@ export class TripService {
       }
 
       // Start the depth-first search
-      await dfs(startPoint, [startPoint], startDate, 0, [], null, [], []);
+      await dfs(startPoint, [startPoint], startDate, 0, [], null, [], [], 0);
 
       if (!startPoint || !endPoint) return;
 
@@ -300,16 +306,16 @@ export class TripService {
       journey.startPoint = findTripDto.from;
       journey.endPoint = findTripDto.to;
       const routes = await planJourney(journey);
-      if (routes.length)
+      if (routes.length) {
         return {
-          status: 'success',
-          message: 'all avaliable routes',
+          status: "success",
+          message: "all avaliable routes",
           routes,
         };
-      else
+      } else
         return {
-          status: 'failed',
-          message: 'there is no avaliable routes',
+          status: "failed",
+          message: "there is no avaliable routes",
         };
     } else {
       journey.startPoint = findTripDto.to;
@@ -321,19 +327,19 @@ export class TripService {
         const routes = await planJourney(journey);
         if (routes.length)
           return {
-            status: 'success',
-            message: 'all avaliable routes',
+            status: "success",
+            message: "all avaliable routes",
             routes,
           };
         else
           return {
-            status: 'failed',
-            message: 'there is no avaliable routes',
+            status: "failed",
+            message: "there is no avaliable routes",
           };
       } else
         return {
-          status: 'failed',
-          message: 'there is no avaliable routes',
+          status: "failed",
+          message: "there is no avaliable routes",
         };
     }
   }

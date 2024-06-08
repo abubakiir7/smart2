@@ -26,8 +26,8 @@ let TripService = class TripService {
     }
     async create(createTripDto) {
         return {
-            status: 'success',
-            message: 'created successfully',
+            status: "success",
+            message: "created successfully",
             trip: await this.tripRepo.create(createTripDto),
         };
     }
@@ -38,17 +38,17 @@ let TripService = class TripService {
             },
             include: [{ model: journey_entity_1.Journey }],
         });
-        const journeys = trips.map(trip => trip.journey);
+        const journeys = trips.map((trip) => trip.journey);
         (0, console_1.log)(journeys);
         if (trips.length)
             return {
-                status: 'success',
-                message: 'all not begin trips',
+                status: "success",
+                message: "all not begin trips",
                 journeys,
             };
         return {
-            status: 'failed',
-            message: 'there is no trips in row',
+            status: "failed",
+            message: "there is no trips in row",
         };
     }
     async findTripsInActive() {
@@ -63,38 +63,38 @@ let TripService = class TripService {
         });
         if (trips.length)
             return {
-                status: 'success',
-                message: 'all active trips',
-                trips: await trips['journey'],
+                status: "success",
+                message: "all active trips",
+                trips: await trips["journey"],
             };
         return {
-            status: 'failed',
-            message: 'there is no active trips',
+            status: "failed",
+            message: "there is no active trips",
         };
     }
     async findAll() {
         const trips = this.tripRepo.findAll({});
         if ((await trips).length)
             return {
-                status: 'success',
-                message: 'all trips',
+                status: "success",
+                message: "all trips",
                 trips,
             };
         return {
-            status: 'failed',
-            message: 'there is no trips',
+            status: "failed",
+            message: "there is no trips",
         };
     }
     async findOne(id) {
         const trip = await this.tripRepo.findByPk(+id);
         if (!trip)
-            throw new common_1.BadRequestException('the id is not valid');
+            throw new common_1.BadRequestException("the id is not valid");
         return trip;
     }
     async update(id, updateTripDto) {
         return {
-            status: 'success',
-            message: 'updated successfully',
+            status: "success",
+            message: "updated successfully",
             trip: await this.tripRepo.update(updateTripDto, {
                 where: { id },
                 returning: true,
@@ -105,8 +105,8 @@ let TripService = class TripService {
         const deleted_trip = await this.tripRepo.findByPk(+id);
         await this.tripRepo.destroy({ where: { id } });
         return {
-            status: 'success',
-            message: 'deleted successfully',
+            status: "success",
+            message: "deleted successfully",
             deleted_trip,
         };
     }
@@ -133,7 +133,7 @@ let TripService = class TripService {
                 return formattedTrips;
             }
             catch (error) {
-                console.error('Error fetching trips:', error);
+                console.error("Error fetching trips:", error);
                 throw error;
             }
         }
@@ -147,11 +147,11 @@ let TripService = class TripService {
         async function planJourney(journey) {
             const { trips, startPoint, endPoint, startDate, passangers } = journey;
             if (!trips || trips.length === 0) {
-                console.error('No trips provided.');
+                console.error("No trips provided.");
                 return [];
             }
             const allRoutes = [];
-            async function dfs(currentPoint, currentPath, currentTime, currentPrice, currentTripIds, lastTripArrival, totalWaitTimes, boardings) {
+            async function dfs(currentPoint, currentPath, currentTime, currentPrice, currentTripIds, lastTripArrival, totalWaitTimes, boardings, freeSeats) {
                 if (currentPoint === endPoint) {
                     allRoutes.push({
                         path: currentPath.slice(),
@@ -159,6 +159,7 @@ let TripService = class TripService {
                         tripIds: currentTripIds.slice(),
                         transfers: totalWaitTimes.slice(),
                         boardings: boardings.slice(),
+                        freeSeats: freeSeats
                     });
                     return;
                 }
@@ -179,7 +180,7 @@ let TripService = class TripService {
                                 },
                             ];
                             const newBoardings = [...boardings, trip.boarding];
-                            let waitTime = '';
+                            let waitTime = "";
                             if (lastTripArrival !== null) {
                                 const lastTripArrivalStamp = convertToTimestamp(lastTripArrival);
                                 const waitTimeMillis = departureTimeStamp - lastTripArrivalStamp;
@@ -190,13 +191,15 @@ let TripService = class TripService {
                                 const isTransfer = (await trip_entity_1.Trip.findByPk(currentTripIds.at(-1).id)).journey_id !==
                                     (await trip_entity_1.Trip.findByPk(trip.id)).journey_id;
                                 totalWaitTimes.push({ time: waitTime, isTransfer });
+                                freeSeats = trip.seats - trip.passangers;
+                                (0, console_1.log)(freeSeats);
                             }
-                            await dfs(trip.destination, newPath, trip.arrivalDateTime, newPrice, newTripIds, trip.arrivalDateTime, [...totalWaitTimes], newBoardings);
+                            await dfs(trip.destination, newPath, trip.arrivalDateTime, newPrice, newTripIds, trip.arrivalDateTime, [...totalWaitTimes], newBoardings, freeSeats);
                         }
                     }
                 }
             }
-            await dfs(startPoint, [startPoint], startDate, 0, [], null, [], []);
+            await dfs(startPoint, [startPoint], startDate, 0, [], null, [], [], 0);
             if (!startPoint || !endPoint)
                 return;
             return allRoutes;
@@ -208,16 +211,17 @@ let TripService = class TripService {
             journey.startPoint = findTripDto.from;
             journey.endPoint = findTripDto.to;
             const routes = await planJourney(journey);
-            if (routes.length)
+            if (routes.length) {
                 return {
-                    status: 'success',
-                    message: 'all avaliable routes',
+                    status: "success",
+                    message: "all avaliable routes",
                     routes,
                 };
+            }
             else
                 return {
-                    status: 'failed',
-                    message: 'there is no avaliable routes',
+                    status: "failed",
+                    message: "there is no avaliable routes",
                 };
         }
         else {
@@ -230,20 +234,20 @@ let TripService = class TripService {
                 const routes = await planJourney(journey);
                 if (routes.length)
                     return {
-                        status: 'success',
-                        message: 'all avaliable routes',
+                        status: "success",
+                        message: "all avaliable routes",
                         routes,
                     };
                 else
                     return {
-                        status: 'failed',
-                        message: 'there is no avaliable routes',
+                        status: "failed",
+                        message: "there is no avaliable routes",
                     };
             }
             else
                 return {
-                    status: 'failed',
-                    message: 'there is no avaliable routes',
+                    status: "failed",
+                    message: "there is no avaliable routes",
                 };
         }
     }
