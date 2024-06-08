@@ -1,7 +1,7 @@
-import { TripService } from './trip.service';
-import { CreateTripDto } from './dto/create-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
-import { FindTripDto } from './dto/find-trip.dto';
+import { TripService } from "./trip.service";
+import { CreateTripDto } from "./dto/create-trip.dto";
+import { UpdateTripDto } from "./dto/update-trip.dto";
+import { FindTripDto } from "./dto/find-trip.dto";
 export declare class TripController {
     private readonly tripService;
     constructor(tripService: TripService);
@@ -48,7 +48,7 @@ export declare class TripController {
         message: string;
         deleted_trip: import("src/modules/trip/entities/trip.entity").Trip;
     }>;
-    findTrip(findTripDto: FindTripDto): Promise<{
+    findTrip(findTripDto: FindTripDto, res: any): Promise<{
         status: string;
         message: string;
         routes: {
