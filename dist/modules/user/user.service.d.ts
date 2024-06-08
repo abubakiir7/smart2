@@ -34,4 +34,14 @@ export declare class UserService {
     email_is_exists(id: number): Promise<{
         exists: boolean;
     }>;
+    login(phoneNumber: string): Promise<{
+        status: string;
+        message: string;
+        payload: {
+            uuid: string;
+        };
+    } | {
+        status: string;
+        message: string;
+    }>;
 }

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -69,5 +70,20 @@ export class UserController {
   })
   phone_is_exists(@Body() body: { id: number }) {
     return this.userService.phone_is_exists(body.id);
+  }
+
+  @Post("login")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Login user only with phone number" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        phoneNUmber: { type: "number", example: "+998330073378" },
+      },
+    },
+  })
+  login(@Body() phoneNumber: { phoneNumber: string }) {
+    return this.userService.login(phoneNumber.phoneNumber);
   }
 }

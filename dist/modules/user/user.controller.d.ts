@@ -31,4 +31,16 @@ export declare class UserController {
     }): Promise<{
         exists: boolean;
     }>;
+    login(phoneNumber: {
+        phoneNumber: string;
+    }): Promise<{
+        status: string;
+        message: string;
+        payload: {
+            uuid: string;
+        };
+    } | {
+        status: string;
+        message: string;
+    }>;
 }

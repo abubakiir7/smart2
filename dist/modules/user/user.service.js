@@ -94,6 +94,11 @@ let UserService = class UserService {
             exists: user?.email != null,
         };
     }
+    async login(phoneNumber) {
+        if (!await this.usersRepo.findOne({ where: { phone: phoneNumber } }))
+            return { status: "failed", message: "user is not registered yet" };
+        return this.otpService.generateOtp(phoneNumber);
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

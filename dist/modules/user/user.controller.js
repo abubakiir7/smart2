@@ -40,6 +40,9 @@ let UserController = class UserController {
     phone_is_exists(body) {
         return this.userService.phone_is_exists(body.id);
     }
+    login(phoneNumber) {
+        return this.userService.login(phoneNumber.phoneNumber);
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -108,6 +111,23 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "phone_is_exists", null);
+__decorate([
+    (0, common_1.Post)("login"),
+    (0, common_1.HttpCode)(200),
+    (0, swagger_1.ApiOperation)({ summary: "Login user only with phone number" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                phoneNUmber: { type: "number", example: "+998330073378" },
+            },
+        },
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "login", null);
 exports.UserController = UserController = __decorate([
     (0, swagger_1.ApiTags)("user"),
     (0, common_1.Controller)("user"),

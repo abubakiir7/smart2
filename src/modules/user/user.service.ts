@@ -8,6 +8,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/sequelize";
 import { User } from "./entities/user.entity";
 import { OtpService } from "../otp/otp.service";
+import { log } from "console";
 
 @Injectable()
 export class UserService {
@@ -93,5 +94,10 @@ export class UserService {
     return {
       exists: user?.email != null,
     };
+  }
+
+  async login(phoneNumber: string) {
+    if (!await this.usersRepo.findOne({where: {phone: phoneNumber}})) return {status: "failed", message: "user is not registered yet"}
+    return this.otpService.generateOtp(phoneNumber)
   }
 }
