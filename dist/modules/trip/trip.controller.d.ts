@@ -57,7 +57,7 @@ export declare class TripController {
             tripIds: any;
             transfers?: any;
             boardings: number[];
-            freeSeats: number;
+            freeSeat: number;
         }[];
     } | {
         status: string;

@@ -153,13 +153,14 @@ let TripService = class TripService {
             const allRoutes = [];
             async function dfs(currentPoint, currentPath, currentTime, currentPrice, currentTripIds, lastTripArrival, totalWaitTimes, boardings, freeSeats) {
                 if (currentPoint === endPoint) {
+                    const minFreeSeats = Math.min(...freeSeats);
                     allRoutes.push({
                         path: currentPath.slice(),
                         price: currentPrice,
                         tripIds: currentTripIds.slice(),
                         transfers: totalWaitTimes.slice(),
                         boardings: boardings.slice(),
-                        freeSeats: freeSeats
+                        freeSeat: minFreeSeats,
                     });
                     return;
                 }
@@ -180,6 +181,7 @@ let TripService = class TripService {
                                 },
                             ];
                             const newBoardings = [...boardings, trip.boarding];
+                            const newFreeSeats = [...freeSeats, trip.seats - trip.passangers];
                             let waitTime = "";
                             if (lastTripArrival !== null) {
                                 const lastTripArrivalStamp = convertToTimestamp(lastTripArrival);
@@ -191,15 +193,13 @@ let TripService = class TripService {
                                 const isTransfer = (await trip_entity_1.Trip.findByPk(currentTripIds.at(-1).id)).journey_id !==
                                     (await trip_entity_1.Trip.findByPk(trip.id)).journey_id;
                                 totalWaitTimes.push({ time: waitTime, isTransfer });
-                                freeSeats = trip.seats - trip.passangers;
-                                (0, console_1.log)(freeSeats);
                             }
-                            await dfs(trip.destination, newPath, trip.arrivalDateTime, newPrice, newTripIds, trip.arrivalDateTime, [...totalWaitTimes], newBoardings, freeSeats);
+                            await dfs(trip.destination, newPath, trip.arrivalDateTime, newPrice, newTripIds, trip.arrivalDateTime, [...totalWaitTimes], newBoardings, newFreeSeats);
                         }
                     }
                 }
             }
-            await dfs(startPoint, [startPoint], startDate, 0, [], null, [], [], 0);
+            await dfs(startPoint, [startPoint], startDate, 0, [], null, [], [], []);
             if (!startPoint || !endPoint)
                 return;
             return allRoutes;

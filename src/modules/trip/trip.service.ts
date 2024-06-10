@@ -197,7 +197,7 @@ export class TripService {
         tripIds: any;
         transfers?: any;
         boardings: number[];
-        freeSeats: number
+        freeSeat: number;
       }[] = [];
 
       async function dfs(
@@ -213,16 +213,17 @@ export class TripService {
         lastTripArrival: string | null,
         totalWaitTimes: { time: string; isTransfer: boolean }[],
         boardings: number[],
-        freeSeats: number
+        freeSeats: number[]
       ) {
         if (currentPoint === endPoint) {
+          const minFreeSeats = Math.min(...freeSeats);
           allRoutes.push({
             path: currentPath.slice(),
             price: currentPrice,
             tripIds: currentTripIds.slice(),
             transfers: totalWaitTimes.slice(),
             boardings: boardings.slice(),
-            freeSeats: freeSeats
+            freeSeat: minFreeSeats,
           });
           return;
         }
@@ -249,6 +250,7 @@ export class TripService {
                 },
               ];
               const newBoardings = [...boardings, trip.boarding];
+              const newFreeSeats = [...freeSeats, trip.seats - trip.passangers];
 
               let waitTime = "";
               if (lastTripArrival !== null) {
@@ -270,8 +272,6 @@ export class TripService {
                   (await Trip.findByPk(trip.id)).journey_id;
 
                 totalWaitTimes.push({ time: waitTime, isTransfer });
-                freeSeats = trip.seats - trip.passangers
-                log(freeSeats)
               }
 
               await dfs(
@@ -283,7 +283,7 @@ export class TripService {
                 trip.arrivalDateTime,
                 [...totalWaitTimes],
                 newBoardings,
-                freeSeats
+                newFreeSeats
               );
             }
           }
@@ -291,7 +291,7 @@ export class TripService {
       }
 
       // Start the depth-first search
-      await dfs(startPoint, [startPoint], startDate, 0, [], null, [], [], 0);
+      await dfs(startPoint, [startPoint], startDate, 0, [], null, [], [], []);
 
       if (!startPoint || !endPoint) return;
 

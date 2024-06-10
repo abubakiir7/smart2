@@ -58,7 +58,7 @@ export declare class TripService {
             tripIds: any;
             transfers?: any;
             boardings: number[];
-            freeSeats: number;
+            freeSeat: number;
         }[];
     } | {
         status: string;
