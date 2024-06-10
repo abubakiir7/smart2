@@ -34,7 +34,7 @@ let JourneyService = class JourneyService {
     async create(createJourneyDto) {
         const { trips, transport_id } = createJourneyDto;
         if (!(await this.transportRepo.findByPk(transport_id)))
-            return { status: 'failed', message: 'the transport not cretaed yet' };
+            return { status: "failed", message: "the transport not cretaed yet" };
         const beginning = trips[0].beginning_time;
         const ending = trips[trips.length - 1].ending_time;
         const busyJourneys = await Promise.all(trips.map(async (trip) => {
@@ -48,8 +48,8 @@ let JourneyService = class JourneyService {
         }));
         if (busyJourneys.some((journeys) => journeys.length > 0)) {
             return {
-                status: 'failed',
-                message: 'The transport is busy at those times',
+                status: "failed",
+                message: "The transport is busy at those times",
             };
         }
         const journeyCreation = {
@@ -66,8 +66,8 @@ let JourneyService = class JourneyService {
             return this.tripService.create({ ...trip, journey_id: journey.id });
         }));
         return {
-            status: 'success',
-            message: 'Journey created successfully',
+            status: "success",
+            message: "Journey created successfully",
             journey,
         };
     }
@@ -75,19 +75,19 @@ let JourneyService = class JourneyService {
         const journeys = await this.journeyRepo.findAll({ include: { all: true } });
         if (journeys.length)
             return {
-                status: 'success',
-                message: 'all trips',
+                status: "success",
+                message: "all trips",
                 journeys,
             };
         return {
-            status: 'failed',
-            message: 'there is no trips',
+            status: "failed",
+            message: "there is no trips",
         };
     }
     async findOne(id) {
         const journey = await this.journeyRepo.findByPk(+id);
         if (!journey)
-            throw new common_1.BadRequestException('the id is not valid');
+            throw new common_1.BadRequestException("the id is not valid");
         return journey;
     }
     update(id, updateJourneyDto) {
@@ -99,8 +99,8 @@ let JourneyService = class JourneyService {
         });
         await this.journeyRepo.destroy({ where: { id } });
         return {
-            status: 'success',
-            message: 'deleted successfully',
+            status: "success",
+            message: "deleted successfully",
             deleted_trip,
         };
     }
@@ -110,13 +110,13 @@ let JourneyService = class JourneyService {
             const TRIPS = bookingDto.passangers[ind].trip_ids.map((i) => i[0]);
             if (!(await this.journeyRepo.findAll({ where: { id: TRIPS } })))
                 return {
-                    status: 'failed',
-                    message: 'the trip was deleted',
+                    status: "failed",
+                    message: "the trip was deleted",
                 };
             if (!(await this.userRepo.findByPk(bookingDto.user_id))?.phone)
                 return {
-                    status: 'failed',
-                    messgae: 'phone number required to book',
+                    status: "failed",
+                    messgae: "phone number required to book",
                 };
             const trips = await trip_entity_1.Trip.findAll({
                 where: { id: TRIPS },
@@ -145,8 +145,8 @@ let JourneyService = class JourneyService {
             }
             if (shouldReturn) {
                 return {
-                    status: 'failed',
-                    message: 'There are not enough seats available or the seat is already booked.',
+                    status: "failed",
+                    message: "There are not enough seats available or the seat is already booked.",
                 };
             }
             const creation_ticket = {
@@ -169,12 +169,13 @@ let JourneyService = class JourneyService {
             for (let g = 0; g < ticket.trip_ids.length; g++) {
                 await trip_entity_1.Trip.update({
                     seats: sequelize_typescript_1.Sequelize.literal(`seats || ARRAY[${ticket.seat_ids[g]}]`),
+                    passangers: sequelize_typescript_1.Sequelize.literal(`passangers + 1`),
                 }, { where: { id: ticket.trip_ids[g] } });
             }
         }
         return {
-            status: 'success',
-            message: 'ticket booked successfully',
+            status: "success",
+            message: "ticket booked successfully",
             tickets,
         };
     }

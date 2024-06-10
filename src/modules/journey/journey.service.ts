@@ -1,19 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateJourneyDto } from './dto/create-journey.dto';
-import { UpdateJourneyDto } from './dto/update-journey.dto';
-import { InjectModel } from '@nestjs/sequelize';
-import { Journey } from './entities/journey.entity';
-import { TripService } from '../trip/trip.service';
-import { Op } from 'sequelize';
-import * as sequelize from 'sequelize';
-import { User } from '../user/entities/user.entity';
-import { BookingJourneyDto } from './dto/booking-journey.dto';
-import { Trip } from '../trip/entities/trip.entity';
-import { TicketsService } from '../tickets/tickets.service';
-import { log } from 'console';
-import { Transport } from '../transport/entities/transport.entity';
-import { Ticket } from '../tickets/entities/ticket.entity';
-import { Sequelize } from 'sequelize-typescript';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { CreateJourneyDto } from "./dto/create-journey.dto";
+import { UpdateJourneyDto } from "./dto/update-journey.dto";
+import { InjectModel } from "@nestjs/sequelize";
+import { Journey } from "./entities/journey.entity";
+import { TripService } from "../trip/trip.service";
+import { Op } from "sequelize";
+import * as sequelize from "sequelize";
+import { User } from "../user/entities/user.entity";
+import { BookingJourneyDto } from "./dto/booking-journey.dto";
+import { Trip } from "../trip/entities/trip.entity";
+import { TicketsService } from "../tickets/tickets.service";
+import { log } from "console";
+import { Transport } from "../transport/entities/transport.entity";
+import { Ticket } from "../tickets/entities/ticket.entity";
+import { Sequelize } from "sequelize-typescript";
 
 @Injectable()
 export class JourneyService {
@@ -22,13 +22,13 @@ export class JourneyService {
     private readonly tripService: TripService,
     @InjectModel(User) private userRepo: typeof User,
     private readonly ticketService: TicketsService,
-    @InjectModel(Transport) private readonly transportRepo: typeof Transport,
+    @InjectModel(Transport) private readonly transportRepo: typeof Transport
   ) {}
 
   async create(createJourneyDto: CreateJourneyDto) {
     const { trips, transport_id } = createJourneyDto;
     if (!(await this.transportRepo.findByPk(transport_id)))
-      return { status: 'failed', message: 'the transport not cretaed yet' };
+      return { status: "failed", message: "the transport not cretaed yet" };
     const beginning = trips[0].beginning_time;
     const ending = trips[trips.length - 1].ending_time;
 
@@ -42,13 +42,13 @@ export class JourneyService {
             ending_time: { [Op.gt]: beginning },
           },
         });
-      }),
+      })
     );
 
     if (busyJourneys.some((journeys) => journeys.length > 0)) {
       return {
-        status: 'failed',
-        message: 'The transport is busy at those times',
+        status: "failed",
+        message: "The transport is busy at those times",
       };
     }
 
@@ -68,12 +68,12 @@ export class JourneyService {
     await Promise.all(
       trips.map((trip) => {
         return this.tripService.create({ ...trip, journey_id: journey.id });
-      }),
+      })
     );
 
     return {
-      status: 'success',
-      message: 'Journey created successfully',
+      status: "success",
+      message: "Journey created successfully",
       journey,
     };
   }
@@ -83,20 +83,20 @@ export class JourneyService {
     const journeys = await this.journeyRepo.findAll({ include: { all: true } });
     if (journeys.length)
       return {
-        status: 'success',
-        message: 'all trips',
+        status: "success",
+        message: "all trips",
         journeys,
       };
     return {
-      status: 'failed',
-      message: 'there is no trips',
+      status: "failed",
+      message: "there is no trips",
     };
   }
 
   async findOne(id: number) {
     // getting one journey by id
     const journey = await this.journeyRepo.findByPk(+id);
-    if (!journey) throw new BadRequestException('the id is not valid');
+    if (!journey) throw new BadRequestException("the id is not valid");
     return journey;
   }
 
@@ -112,8 +112,8 @@ export class JourneyService {
     // deleting the journey
     await this.journeyRepo.destroy({ where: { id } });
     return {
-      status: 'success',
-      message: 'deleted successfully',
+      status: "success",
+      message: "deleted successfully",
       deleted_trip,
     };
   }
@@ -125,13 +125,13 @@ export class JourneyService {
 
       if (!(await this.journeyRepo.findAll({ where: { id: TRIPS } })))
         return {
-          status: 'failed',
-          message: 'the trip was deleted',
+          status: "failed",
+          message: "the trip was deleted",
         };
       if (!(await this.userRepo.findByPk(bookingDto.user_id))?.phone)
         return {
-          status: 'failed',
-          messgae: 'phone number required to book',
+          status: "failed",
+          messgae: "phone number required to book",
         };
       const trips = await Trip.findAll({
         where: { id: TRIPS },
@@ -165,9 +165,9 @@ export class JourneyService {
 
       if (shouldReturn) {
         return {
-          status: 'failed',
+          status: "failed",
           message:
-            'There are not enough seats available or the seat is already booked.',
+            "There are not enough seats available or the seat is already booked.",
         };
       }
 
@@ -185,7 +185,7 @@ export class JourneyService {
 
       creation_ticket.trip_ids.push(...TRIPS);
       creation_ticket.seat_ids.push(
-        ...bookingDto.passangers[ind].trip_ids.map((k) => k[1]),
+        ...bookingDto.passangers[ind].trip_ids.map((k) => k[1])
       );
 
       const ticket = await this.ticketService.create(creation_ticket);
@@ -197,15 +197,16 @@ export class JourneyService {
         await Trip.update(
           {
             seats: Sequelize.literal(`seats || ARRAY[${ticket.seat_ids[g]}]`),
+            passangers: Sequelize.literal(`passangers + 1`),
           },
-          { where: { id: ticket.trip_ids[g] } },
+          { where: { id: ticket.trip_ids[g] } }
         );
       }
     }
     // this.mailService.sendMailClient("smart", "")
     return {
-      status: 'success',
-      message: 'ticket booked successfully',
+      status: "success",
+      message: "ticket booked successfully",
       tickets,
     };
   }

@@ -1,11 +1,11 @@
-import { CreateJourneyDto } from './dto/create-journey.dto';
-import { UpdateJourneyDto } from './dto/update-journey.dto';
-import { Journey } from './entities/journey.entity';
-import { TripService } from '../trip/trip.service';
-import { User } from '../user/entities/user.entity';
-import { BookingJourneyDto } from './dto/booking-journey.dto';
-import { TicketsService } from '../tickets/tickets.service';
-import { Transport } from '../transport/entities/transport.entity';
+import { CreateJourneyDto } from "./dto/create-journey.dto";
+import { UpdateJourneyDto } from "./dto/update-journey.dto";
+import { Journey } from "./entities/journey.entity";
+import { TripService } from "../trip/trip.service";
+import { User } from "../user/entities/user.entity";
+import { BookingJourneyDto } from "./dto/booking-journey.dto";
+import { TicketsService } from "../tickets/tickets.service";
+import { Transport } from "../transport/entities/transport.entity";
 export declare class JourneyService {
     private journeyRepo;
     private readonly tripService;
